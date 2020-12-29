@@ -1,5 +1,6 @@
 #first-panel, #second-panel {
     min-height: 100vh;
+    max-height: 100vh;
 }
 
 .center-items {

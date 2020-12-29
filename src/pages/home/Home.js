@@ -39,7 +39,7 @@ class Home extends React.Component {
     render() {
         return (
             <div className="home">
-                <div className="columns" id="first-panel">
+                <div className="columns panel" id="first-panel">
                     <div className="column center-items" id="first-left">
                         <h1>Word embedding.</h1>
                     </div>
@@ -56,7 +56,7 @@ class Home extends React.Component {
                     </div>
                 </div>
 
-                <div className="columns" id="second-panel">
+                <div className="columns panel" id="second-panel">
                     <div className="column" id="second-left" onMouseEnter={() => this.hover('left')} onMouseLeave={() => this.nohover()}>
                         <div>
                             <h1>GloVe</h1>

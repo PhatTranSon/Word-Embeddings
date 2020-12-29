@@ -1,0 +1,38 @@
+.container {
+    width: 80%;
+}
+
+.heading, .sub-heading {
+    margin: 10px auto;
+    text-align: center;
+}
+
+.heading {
+    font-size: 10vh;
+    font-weight: 500;
+}
+
+.sub-heading {
+    font-size: 3vh;
+    font-weight: 500;
+}
+
+.para {
+    margin: 50px auto;
+}
+
+.para-heading {
+    font-size: 4vh;
+    font-weight: 500;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.para-heading:before {
+    content: '';
+    width: 80px;
+    height: 4px;
+    background: gray;
+    position: absolute;
+    bottom: -4px;
+}
