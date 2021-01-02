@@ -1,0 +1,29 @@
+.custom-textfield {
+    font-family: 'Roboto Mono', monospace;
+    outline: none;
+    padding-bottom: 10px;
+    border: none;
+    border-bottom: 2px solid #4a4a4a;
+}
+
+.custom-textfield:focus {
+    outline: none;
+}
+
+.custom-textfield:focus ~ .custom-textfield-border {
+    width: 100%;
+    border-bottom: 2px solid #f4a261;
+}
+
+.custom-textfield-border {
+    border-bottom: 2px solid #4a4a4a;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: inline-block;
+    height: 1px;
+    width: 100%;
+    transition: all 500ms ease-in-out;
+}
+

@@ -36,3 +36,11 @@
     position: absolute;
     bottom: -4px;
 }
+
+.plot-holder {
+    text-align: center;
+}
+
+.js-plotly-plot {
+    display: inline-block !important;
+}
