@@ -31,6 +31,10 @@
     text-align: right;
 }
 
+#second-panel {
+    margin-bottom: 0;
+}
+
 #second-left, #second-right {
     padding-top: 30px;
     max-width: 50vw;
@@ -57,4 +61,10 @@
 .iconic g {
     fill: red;
     stroke: red;
+}
+
+.footer {
+    background: black;
+    color: white;
+    font-size: 3vh;
 }

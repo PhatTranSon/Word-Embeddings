@@ -77,6 +77,12 @@ class Home extends React.Component {
                         </div>
                     </div>
                 </div>
+
+                <footer className="footer">
+                    <div className="content has-text-centered">
+                        Created by Tran Son Phat at RMIT university
+                    </div>
+                </footer>
             </div>
         )
     }

@@ -1,7 +1,13 @@
 .panel-title {
     font-weight: 500;
+    padding: 5px;
+}
+
+.error-message {
+    color: red;
+    font-size: 2vh;
 }
 
 #search-panel {
-    padding: 20px;
+    padding: 10px;
 }

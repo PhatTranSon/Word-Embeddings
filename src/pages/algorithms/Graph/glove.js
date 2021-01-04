@@ -1,11 +1,12 @@
 import React from 'react';
 import "./graph.css";
 
+import NearestNeighbors from './neighbors/neighbors';
+
 //Create plot component
-import Plotly from "plotly.js";
-import createPlotlyComponent from 'react-plotly.js/factory';
 import TextField from '../../../common/TextField';
-const Plot = createPlotlyComponent(Plotly);
+import nearestNeighbors from './distance';
+import Plot from '../../../common/plot';
 
 class GloveGraph extends React.Component {
     constructor(props) {
@@ -15,7 +16,17 @@ class GloveGraph extends React.Component {
         this.state = {
             loading: true,
 
+            raw: null,
+
+            original: null,
+
             data: [],
+
+            input: "",
+
+            errorMessage: null,
+
+            neighbors: [],
 
             //Layout
             layout: {
@@ -50,57 +61,171 @@ class GloveGraph extends React.Component {
         }
 
         //Bind methods
-        this.fetchEmbeddings = this.fetchEmbeddings.bind(this);
+        this.fetchPCAEmbeddings = this.fetchPCAEmbeddings.bind(this);
+        this.formatData = this.formatData.bind(this);
+        this.fetchRawEmbeddings = this.fetchRawEmbeddings.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+        this.onInputChange = this.onInputChange.bind(this);
+        this.splitDataset = this.splitDataset.bind(this);
+        this.reset = this.reset.bind(this);
     }
 
-    fetchEmbeddings() {
-        //Set loading to true first
+
+    fetchPCAEmbeddings() {
+        return (
+            fetch('https://raw.githubusercontent.com/PhatTranSon/Files/main/pca_embeddings.json')
+                .then(response => response.json())
+                .then(data => data)
+        );
+    }
+
+    formatData(data, name, textPosition=null, color='rgba(0, 119, 182, 0.5)') {
+        //Preprocess the data
+        const words = Object.keys(data);
+                    
+        //Get the coordinates
+        const x = [];
+        const y = [];
+        
+        for (const word in data) {
+            const coords = data[word];
+            x.push(coords[0]);
+            y.push(coords[1]);
+        }
+        
+        //Format to feed to render
+        const formattedData = {
+            name,
+            mode: textPosition != null ? 'markers+text' : 'markers',
+            type: 'scatter',
+            marker: { 
+                size: 10, 
+                color,
+                font: {
+                    family: 'Roboto Mono'
+                }
+            },
+            x,
+            y,
+            text: words,
+            textposition: textPosition
+        }
+
+        //Set state
+        return formattedData;
+    }
+
+    fetchRawEmbeddings() {
+        return (
+            fetch('https://raw.githubusercontent.com/PhatTranSon/Files/main/full_embeddings.json')
+                .then(response => response.json())
+                .then(data => {
+                    return data;
+                })
+        );
+    }
+
+    componentDidMount() {
         this.setState({
             loading: true
         });
 
-        fetch('https://raw.githubusercontent.com/PhatTranSon/Files/main/embeddings.json')
-            .then(response => response.json())
-            .then(data => {
-                //Preprocess the data
-                const words = Object.keys(data);
-                
-                //Get the coordinates
-                const x = [];
-                const y = [];
-                
-                for (const word in data) {
-                    const coords = data[word];
-                    x.push(coords[0]);
-                    y.push(coords[1]);
-                }
-                
-                //Format to feed to render
-                const formattedData = {
-                    mode: 'markers',
-                    type: 'scatter',
-                    marker: { 
-                        size: 10, 
-                        color: 'rgba(0, 119, 182, 0.5)',
-                        font: {
-                            family: 'Roboto Mono'
-                        }
-                    },
-                    x,
-                    y,
-                    text: words
-                }
+        Promise.all([this.fetchRawEmbeddings(), this.fetchPCAEmbeddings()])
+            .then(values => {
+                //Get raw and format data
+                const [rawData, pcaData] = values;
+
+                //Format the data
+                const formattedData = this.formatData(pcaData);
 
                 //Set state
                 this.setState({
-                    loading: false,
-                    data: [formattedData]
+                    raw: rawData,
+                    original: pcaData,
+                    data: [formattedData],
+                    loading: false
                 });
             });
     }
 
-    componentDidMount() {
-        this.fetchEmbeddings();
+    handleKeyPress(e) {
+        if (e.key === "Enter") {
+            //Get the word from state
+            const word = this.state.input;
+
+            //Check if word is empty
+            if (!word || word.length === 0) {
+                this.reset();
+            } else {
+                //Find the closest neighbors
+                nearestNeighbors(this.state.raw, word)
+                    .then(neighbors => {
+                        //Construct new data
+                        this.splitDataset(word, neighbors);
+                        
+                        //Then display the neighbors
+                        this.setState({
+                            neighbors,
+                            errorMessage: null
+                        });
+                    })
+                    .catch(error => {
+                        //TO BE IMPLEMENTED: Error handling
+                        this.setState({
+                            errorMessage: "Word does not exist"
+                        });
+                    });
+            }
+        }
+    }
+
+    splitDataset(word, neighbors) {
+        //Get the neighbor words
+        const neighborWords = neighbors.map(item => item[0]);
+
+        //First get pca data first
+        const pcaData = this.state.original;
+
+        //Then find the neighbors points, unimportant point and the target words
+        const targetWord = { };
+        targetWord[word] = pcaData[word];
+
+        const neighborsPoints = {};
+        const nonNeighborPoints = {};
+
+        for (const key in pcaData) {
+            if (neighborWords.includes(key)) {
+                neighborsPoints[key] = pcaData[key];
+            } else {
+                nonNeighborPoints[key] = pcaData[key];
+            }
+        }
+
+        //Then format
+        const formattedNeighbors = this.formatData(neighborsPoints, 'Neighbors', null, 'rgba(252, 163, 17, 0.5)');
+        const formattedTarget = this.formatData(targetWord, 'Target', null, 'red');
+        const formattedNonNeighbors = this.formatData(nonNeighborPoints, 'Non-neighbors', null, 'rgba(141, 153, 174, 0.1)');
+
+        //Then set data
+        this.setState({
+            data: [formattedTarget, formattedNeighbors, formattedNonNeighbors]
+        });
+    }
+
+    reset() {
+        const data = this.state.original;
+        const formattedData = this.formatData(data);
+
+        this.setState({
+            data: [formattedData],
+            neighbors: null
+        });
+    }
+
+    onInputChange(event) {
+        this.setState({
+            input: event.target.value
+        });
     }
 
     render() {
@@ -122,7 +247,16 @@ class GloveGraph extends React.Component {
                         <div className="panel" id="search-panel" style={{height: "100%"}}>
                             <div className="panel-title">Search a word</div>
                             <div className="panel-main">
-                                <TextField placeholder="Word"/>
+                                <TextField 
+                                    placeholder="Word" 
+                                    onKeyDown={this.handleKeyPress}
+                                    onChange={this.onInputChange}/>
+
+                                {
+                                    this.state.errorMessage ? <div className="error-message"> { this.state.errorMessage } </div> : null
+                                }
+
+                                <NearestNeighbors neighbors={this.state.neighbors} />
                             </div>
                         </div>
                     </div>
@@ -134,42 +268,3 @@ class GloveGraph extends React.Component {
 
 
 export default GloveGraph;
-
-
-/*
-import React from 'react';
-
-//Create the Plot component
-import Plotly from "plotly.js";
-import createPlotlyComponent from 'react-plotly.js/factory';
-const Plot = createPlotlyComponent(Plotly);
-
-class Graph extends React.Component {
-  render() {
-    return (
-        <div className="plot-holder">
-            <Plot
-                data={[
-                {
-                    x: [1, 2, 3],
-                    y: [2, 6, 3],
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    marker: {color: 'red'},
-                },
-                {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
-                ]}
-                layout={
-                    {
-                        useResizeHandler: true,
-                        style: { width: "100%", height: "100%" }
-                    }
-                }
-            />
-        </div>
-    );
-  }
-}
-
-export default Graph;
-*/

@@ -1,0 +1,11 @@
+.neighbor-panel {
+    padding: 10px;
+}
+
+.bar-word {
+    float: left;
+}
+
+.bar-number {
+    float: right;
+}
