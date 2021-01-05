@@ -1,6 +1,7 @@
 import React from "react";
 import "../algorithm.css";
 import LoadingBar from 'react-top-loading-bar'
+import Word2VecGraph from '../Graph/word2vec';
 
 class Word2Vec extends React.Component {
     constructor(props) {
@@ -50,6 +51,10 @@ class Word2Vec extends React.Component {
                     <div className="para">
                         <p className="para-heading">Implementation</p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris eu augue aliquet, iaculis erat nec, congue ex. Integer pharetra ligula nec mauris sodales lobortis. Fusce eget luctus sem. Nullam at odio non sem tincidunt vulputate sit amet in diam. Morbi tincidunt lacus a leo interdum, et aliquam metus tincidunt. Donec ultrices lectus at varius dapibus. Cras at elementum ante, eget maximus turpis. Phasellus aliquet imperdiet turpis, accumsan gravida tortor molestie vel.
+                    </div>
+
+                    <div className="para">
+                        <Word2VecGraph/>
                     </div>
                 </div>
             </div>
