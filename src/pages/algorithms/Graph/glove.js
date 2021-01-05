@@ -73,7 +73,7 @@ class GloveGraph extends React.Component {
 
     fetchPCAEmbeddings() {
         return (
-            fetch('https://raw.githubusercontent.com/PhatTranSon/Files/main/pca_embeddings.json')
+            fetch('https://raw.githubusercontent.com/PhatTranSon/Files/main/glove_pca_embeddings.json')
                 .then(response => response.json())
                 .then(data => data)
         );
@@ -117,7 +117,7 @@ class GloveGraph extends React.Component {
 
     fetchRawEmbeddings() {
         return (
-            fetch('https://raw.githubusercontent.com/PhatTranSon/Files/main/full_embeddings.json')
+            fetch('https://raw.githubusercontent.com/PhatTranSon/Files/main/glove_embeddings.json')
                 .then(response => response.json())
                 .then(data => {
                     return data;
